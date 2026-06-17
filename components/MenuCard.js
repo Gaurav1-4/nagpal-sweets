@@ -40,13 +40,14 @@ function getImageUrl(name) {
   if (n === 'Kulfi Faluda') return 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Matka_kulfi.jpg';
   if (n === 'Ras Malai') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Ras_Malai_2.JPG/960px-Ras_Malai_2.JPG';
   if (n === 'Gulab Jamun (2 Pcs.)') return 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Gulab-jamun-wallpaper-1.jpg';
-  if (n === 'Cold Drink') return 'https://upload.wikimedia.org/wikipedia/commons/c/cf/Tumbler_of_cola_with_ice.jpg';
+  if (n === 'Rabri' || n === 'Rabri Glass') return '/food/rabri_glass_1781722002745.png';
+  if (n === 'Cold Drink') return '/food/cold_drink_1781721944572.png';
   if (n === 'Lassi (Sweet)') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Salt_lassi.jpg/960px-Salt_lassi.jpg';
   if (n === 'Milk Shake' || n === 'Strawberry Shake with Ice Cream') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Strawberry_milk_shake_%28cropped%29.jpg/960px-Strawberry_milk_shake_%28cropped%29.jpg';
   if (n === 'Cold Coffee') return '/food/cold_coffee_1781721579798.png';
   if (n === 'Cold Coffee with Ice Cream') return '/food/cold_coffee_ice_cream_1781721608491.png';
   if (n === 'Badam Shake') return '/food/badam_shake_1781721593604.png';
-  if (n === 'Mineral Water') return 'https://upload.wikimedia.org/wikipedia/commons/0/02/Stilles_Mineralwasser.jpg';
+  if (n === 'Mineral Water') return '/food/mineral_water_1781721993249.png';
 
   // Fallback map for the rest using high quality Unsplash food photography
   const lowerName = n.toLowerCase();
