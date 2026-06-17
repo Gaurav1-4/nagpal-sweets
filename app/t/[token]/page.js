@@ -20,6 +20,13 @@ function MenuContent({ token }) {
   const [sizeSelections, setSizeSelections] = useState({});
   const [menuSheetOpen, setMenuSheetOpen] = useState(false);
 
+  const heroVideos = [
+    { src: '/videos/Butter_melting_on_dosa_202606180040.mp4', label: 'Rava Masala Dosa >' },
+    { src: '/videos/Hands_tearing_Bhatura_dipping_Ch…_202606180041.mp4', label: 'Chhole Bhature >' },
+    { src: '/videos/Chef_tosses_wok_noodles_fire_202606180041.mp4', label: 'Paneer Chowmein >' }
+  ];
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+
   const sectionRefs = useRef({});
   const isScrollingProgrammatically = useRef(false);
 
@@ -183,11 +190,21 @@ function MenuContent({ token }) {
   return (
     <div className="menu-container">
       {/* 1. Hero Section */}
-      <div className="hero-section">
-        <div className="hero-overlay" />
+      <div className="hero-section" style={{ position: 'relative' }}>
+        <video 
+          key={heroVideos[currentVideoIndex].src}
+          src={heroVideos[currentVideoIndex].src}
+          className="hero-video"
+          autoPlay
+          muted
+          playsInline
+          onEnded={() => setCurrentVideoIndex((prev) => (prev + 1) % heroVideos.length)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 0 }}
+        />
+        <div className="hero-overlay" style={{ zIndex: 1, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 100%)' }} />
         
         {/* Top Icons Bar over Hero */}
-        <div className="top-icons-bar">
+        <div className="top-icons-bar" style={{ zIndex: 2, position: 'relative' }}>
           <a href="#" className="icon-btn">←</a>
           <div className="top-icon-group">
             <button className="icon-btn">🔍</button>
@@ -196,14 +213,20 @@ function MenuContent({ token }) {
           </div>
         </div>
 
-        <div className="hero-bottom-overlay">
-          <div className="hero-dots">
-            <span className="hero-dot active"></span>
-            <span className="hero-dot"></span>
-            <span className="hero-dot"></span>
-            <span className="hero-dot"></span>
+        <div className="hero-bottom-overlay" style={{ zIndex: 2, position: 'relative' }}>
+          <div className="hero-dots" style={{ zIndex: 3, position: 'relative' }}>
+            {heroVideos.map((_, idx) => (
+               <span 
+                 key={idx} 
+                 className={`hero-dot ${idx === currentVideoIndex ? 'active' : ''}`} 
+                 onClick={() => setCurrentVideoIndex(idx)}
+                 style={{ cursor: 'pointer' }}
+               ></span>
+            ))}
           </div>
-          <div className="hero-dish-name">Gulab Jamun &gt;</div>
+          <div className="hero-dish-name" style={{ zIndex: 3, position: 'relative' }}>
+            {heroVideos[currentVideoIndex].label}
+          </div>
         </div>
       </div>
 
