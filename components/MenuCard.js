@@ -3,7 +3,30 @@
 import { memo } from 'react';
 
 function getImageUrl(name) {
-  const lowerName = name.toLowerCase();
+  const n = name.trim();
+  
+  // Explicitly map the 17 custom AI generated images
+  if (n === 'Veg. Chowmein') return '/food/veg_chowmein_1781716968635.png';
+  if (n === 'Paneer Chowmein') return '/food/paneer_chowmein_1781716980302.png';
+  if (n === 'Plain Dosa (Sada Dosa)') return '/food/plain_dosa_1781716994134.png';
+  if (n === 'Paneer Dosa') return '/food/paneer_dosa_1781717005477.png';
+  if (n === 'Masala Dosa') return '/food/masala_dosa_1781717049560.png';
+  if (n === 'Mix Veg. Uthapam') return '/food/mix_veg_uthapam_1781717060886.png';
+  if (n === 'Chhole Bhature') return '/food/chhole_bhature_1781717019425.png';
+  if (n === 'Samosa Plate') return '/food/samosa_plate_1781717073743.png';
+  if (n === 'Rasgulla Plate (2 Pcs.)') return '/food/rasgulla_1781717085990.png';
+  if (n === 'Strawberry Shake') return '/food/strawberry_shake_1781717098110.png';
+  
+  if (n === 'Masala Dosa (Without Onion)') return '/food/masala_dosa_without_onion_1781717345474.png';
+  if (n === 'Spl. Masala Dosa') return '/food/spl_masala_dosa_1781717358524.png';
+  if (n === 'Butter Masala Dosa') return '/food/butter_masala_dosa_1781717371098.png';
+  if (n === 'Butter Paneer Dosa') return '/food/butter_paneer_dosa_1781717385388.png';
+  if (n === 'Onion Masala Dosa') return '/food/onion_masala_dosa_1781717399224.png';
+  if (n === 'Onion Paneer Dosa') return '/food/onion_paneer_dosa_1781717428794.png';
+  if (n === 'Onion Tomato Uthapam') return '/food/onion_tomato_uthapam_1781717441781.png';
+
+  // Fallback map for the rest using high quality Unsplash food photography
+  const lowerName = n.toLowerCase();
   
   if (lowerName.includes('dosa') || lowerName.includes('uthapam') || lowerName.includes('idli') || lowerName.includes('vada')) {
     return 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?q=80&w=300&auto=format&fit=crop';
@@ -27,7 +50,7 @@ function getImageUrl(name) {
     return 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=300&auto=format&fit=crop';
   }
   
-  // Default fallback (Paneer/Curry style)
+  // Default fallback
   return 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?q=80&w=300&auto=format&fit=crop';
 }
 
