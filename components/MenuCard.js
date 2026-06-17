@@ -12,21 +12,24 @@ function MenuCard({ item, onAdd, onRemove, quantity, selectedSize, onSizeChange 
   return (
     <div className="menu-card">
       <div className="card-info">
-        <div className="card-name-row">
-          <div className="veg-badge">
-            <div className="veg-badge-inner" />
-          </div>
-          <span className="card-name">{item.name}</span>
+        <div className="veg-badge">
+          <div className="veg-badge-inner" />
         </div>
-
+        
+        <h3 className="card-name">{item.name}</h3>
+        
         {isMrp ? (
           <span className="mrp-badge">MRP</span>
         ) : (
           <div className="card-price">
-            <span className="price-symbol">₹</span>
-            {price}
+            ₹{price}
           </div>
         )}
+        
+        {/* Placeholder description to make it look like Zomato/Swiggy */}
+        <p className="card-desc">
+          {item.description || "A delicious traditional recipe prepared with premium ingredients and authentic spices."}
+        </p>
 
         {item.has_half_option && !isMrp && (
           <div className="size-toggle">
@@ -50,6 +53,7 @@ function MenuCard({ item, onAdd, onRemove, quantity, selectedSize, onSizeChange 
 
       {!isMrp && (
         <div className="card-actions">
+          <div className="item-image-placeholder"></div>
           {quantity === 0 ? (
             <button
               className="add-btn"

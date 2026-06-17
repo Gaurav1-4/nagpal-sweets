@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, use } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useCart, CartProvider } from '@/components/CartContext';
+import { useCart } from '@/components/CartContext';
 import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from '@/lib/constants';
 import MenuCard from '@/components/MenuCard';
 import CategoryNav from '@/components/CategoryNav';
@@ -18,6 +18,7 @@ function MenuContent({ token }) {
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [sizeSelections, setSizeSelections] = useState({});
+  const [menuSheetOpen, setMenuSheetOpen] = useState(false);
 
   const sectionRefs = useRef({});
   const isScrollingProgrammatically = useRef(false);
@@ -35,7 +36,6 @@ function MenuContent({ token }) {
         const data = await res.json();
         const sid = data.session ? data.session.id : data.sessionId;
         setSessionId(sid);
-        // Persist sessionId so cart page can access it
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(`session_${token}`, sid);
         }
@@ -47,10 +47,9 @@ function MenuContent({ token }) {
     initSession();
   }, [token]);
 
-  // 2. Fetch menu once session is valid
+  // 2. Fetch menu
   useEffect(() => {
     if (!sessionId) return;
-
     async function fetchMenu() {
       try {
         const { data: cats, error: catError } = await supabase
@@ -74,7 +73,6 @@ function MenuContent({ token }) {
 
         if (catError) throw catError;
 
-        // Sort items within each category and filter unavailable
         const processed = cats.map((cat) => ({
           ...cat,
           menu_items: cat.menu_items
@@ -87,7 +85,6 @@ function MenuContent({ token }) {
           setActiveCategory(processed[0].id);
         }
 
-        // Initialize size selections: default to 'full' for all items
         const sizes = {};
         processed.forEach((cat) => {
           cat.menu_items.forEach((item) => {
@@ -104,7 +101,7 @@ function MenuContent({ token }) {
     fetchMenu();
   }, [sessionId]);
 
-  // 3. Intersection Observer for active category on scroll
+  // 3. Intersection Observer for active category
   useEffect(() => {
     if (categories.length === 0) return;
 
@@ -116,7 +113,6 @@ function MenuContent({ token }) {
 
     const observer = new IntersectionObserver((entries) => {
       if (isScrollingProgrammatically.current) return;
-
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           setActiveCategory(entry.target.dataset.categoryId);
@@ -131,17 +127,16 @@ function MenuContent({ token }) {
     return () => observer.disconnect();
   }, [categories]);
 
-  // Handlers
   const handleCategoryClick = useCallback((categoryId) => {
     setActiveCategory(categoryId);
+    setMenuSheetOpen(false); // Close sheet if jumping from menu button
     const section = sectionRefs.current[categoryId];
     if (section) {
       isScrollingProgrammatically.current = true;
-      const yOffset = -110; // account for sticky nav height
+      const yOffset = -60; // account for sticky nav height
       const y = section.getBoundingClientRect().top + window.scrollY + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
 
-      // Re-enable observer after scroll completes
       setTimeout(() => {
         isScrollingProgrammatically.current = false;
       }, 800);
@@ -152,30 +147,20 @@ function MenuContent({ token }) {
     setSizeSelections((prev) => ({ ...prev, [itemId]: size }));
   }, []);
 
-  const handleAdd = useCallback(
-    (itemId, name, price, size) => {
-      addItem(itemId, name, price, size);
-    },
-    [addItem]
-  );
+  const handleAdd = useCallback((itemId, name, price, size) => {
+    addItem(itemId, name, price, size);
+  }, [addItem]);
 
-  const handleRemove = useCallback(
-    (key) => {
-      removeItem(key);
-    },
-    [removeItem]
-  );
+  const handleRemove = useCallback((key) => {
+    removeItem(key);
+  }, [removeItem]);
 
-  const getQuantity = useCallback(
-    (itemId, size) => {
-      const key = `${itemId}-${size}`;
-      const found = items.find((i) => i.key === key);
-      return found ? found.quantity : 0;
-    },
-    [items]
-  );
+  const getQuantity = useCallback((itemId, size) => {
+    const key = `${itemId}-${size}`;
+    const found = items.find((i) => i.key === key);
+    return found ? found.quantity : 0;
+  }, [items]);
 
-  // Render states
   if (loading) {
     return (
       <div className="menu-loading">
@@ -197,32 +182,92 @@ function MenuContent({ token }) {
 
   return (
     <div className="menu-container">
-      {/* Restaurant Header */}
-      <header className="menu-header">
-        <div className="header-content">
-          <div className="header-top-row">
-            <h1 className="restaurant-name">{RESTAURANT_NAME}</h1>
-            <div className="veg-badge-header">
-              <div className="veg-dot-header">
-                <span />
-              </div>
-              <span className="veg-badge-text">Pure Veg</span>
-            </div>
+      {/* 1. Hero Section */}
+      <div className="hero-section">
+        <div className="hero-overlay" />
+        
+        {/* Top Icons Bar over Hero */}
+        <div className="top-icons-bar">
+          <a href="#" className="icon-btn">←</a>
+          <div className="top-icon-group">
+            <button className="icon-btn">🔍</button>
+            <button className="icon-btn">👥</button>
+            <button className="icon-btn">⋮</button>
           </div>
-          <p className="restaurant-tagline">{RESTAURANT_TAGLINE}</p>
         </div>
-      </header>
 
-      {/* Sticky Category Nav */}
-      <CategoryNav
-        categories={categories}
-        activeCategory={activeCategory}
-        onCategoryClick={handleCategoryClick}
-      />
+        <div className="hero-bottom-overlay">
+          <div className="hero-dots">
+            <span className="hero-dot active"></span>
+            <span className="hero-dot"></span>
+            <span className="hero-dot"></span>
+            <span className="hero-dot"></span>
+          </div>
+          <div className="hero-dish-name">Gulab Jamun &gt;</div>
+        </div>
+      </div>
 
-      {/* Menu Sections */}
+      {/* 2. Restaurant Info Card (Bottom Sheet Style) */}
+      <div className="restaurant-info-card">
+        <div className="card-drag-handle"></div>
+        
+        <div className="restaurant-title-row">
+          <h1 className="restaurant-title">
+            {RESTAURANT_NAME} <span className="info-icon">ⓘ</span>
+          </h1>
+          <div className="rating-pill">
+            <div className="rating-badge">★ 4.5</div>
+            <div className="rating-count">By 1K+</div>
+          </div>
+        </div>
+
+        <div className="restaurant-meta">
+          <div className="meta-row">
+            <span>📍</span>
+            <span>4.3 km · Main Market Locality</span>
+          </div>
+          <div className="meta-row">
+            <span>🕒</span>
+            <span>10-15 mins · Serve at table ∨</span>
+          </div>
+        </div>
+
+        <div className="offer-banner">
+          <div className="offer-text">
+            <span className="offer-icon">%</span>
+            <span>Flat ₹50 OFF above ₹299</span>
+          </div>
+          <div className="offer-more">5 offers ∨</div>
+        </div>
+      </div>
+
+      {/* 3. Horizontal Filter Pills (Sticky) */}
+      <div className="category-filters">
+        <div className="category-nav-inner">
+          <button className="filter-pill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            Filters ∨
+          </button>
+          <button className="filter-pill active">
+            <span className="veg-badge-inner" style={{display:'inline-block', width:'8px', height:'8px', background:'#4caf50', borderRadius:'50%', border:'1px solid #4caf50', marginRight:'4px'}}></span>
+            Pure Veg
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              className={`filter-pill ${activeCategory === cat.id ? 'active' : ''}`}
+              onClick={() => handleCategoryClick(cat.id)}
+            >
+              {cat.icon && <span style={{marginRight: '4px'}}>{cat.icon}</span>}
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. Menu Sections */}
       <main className="menu-sections">
-        {categories.map((cat) => (
+        {categories.map((cat, index) => (
           <section
             key={cat.id}
             className="menu-section"
@@ -230,11 +275,9 @@ function MenuContent({ token }) {
             ref={(el) => (sectionRefs.current[cat.id] = el)}
           >
             <div className="section-header">
-              {cat.icon && <span className="section-icon">{cat.icon}</span>}
-              <h2 className="section-title">{cat.name}</h2>
-              <span className="section-count">
-                {cat.menu_items.length} {cat.menu_items.length === 1 ? 'item' : 'items'}
-              </span>
+              <h2 className="section-title">
+                {index === 0 ? "Most ordered together" : cat.name}
+              </h2>
             </div>
 
             <div className="section-items">
@@ -257,7 +300,34 @@ function MenuContent({ token }) {
         ))}
       </main>
 
-      {/* Floating Cart Bar */}
+      {/* 5. Floating Menu Button (Bottom Right) */}
+      <button className="floating-menu-btn" onClick={() => setMenuSheetOpen(true)}>
+        <span className="menu-btn-icon">🍴</span> Menu
+      </button>
+
+      {/* 6. Menu Bottom Sheet (Categories List) */}
+      <div className={`menu-bottom-sheet ${menuSheetOpen ? 'open' : ''}`} onClick={() => setMenuSheetOpen(false)}>
+        <div className="sheet-content" onClick={(e) => e.stopPropagation()}>
+          <div className="sheet-header">
+            <span>Menu</span>
+            <button className="close-sheet-btn" onClick={() => setMenuSheetOpen(false)}>✕</button>
+          </div>
+          <div className="sheet-categories">
+            {categories.map(cat => (
+              <div 
+                key={cat.id} 
+                className={`sheet-category-item ${activeCategory === cat.id ? 'active' : ''}`}
+                onClick={() => handleCategoryClick(cat.id)}
+              >
+                <span>{cat.name}</span>
+                <span className="sheet-category-count">{cat.menu_items.length}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 7. Cart Bar */}
       <CartBar
         totalItems={totalItems}
         totalAmount={totalAmount}
