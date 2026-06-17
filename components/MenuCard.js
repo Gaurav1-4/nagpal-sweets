@@ -5,7 +5,7 @@ import { memo } from 'react';
 function getImageUrl(name) {
   const n = name.trim();
   
-  // Explicitly map the 17 custom AI generated images
+  // 17 AI generated images mapped here
   if (n === 'Veg. Chowmein') return '/food/veg_chowmein_1781716968635.png';
   if (n === 'Paneer Chowmein') return '/food/paneer_chowmein_1781716980302.png';
   if (n === 'Plain Dosa (Sada Dosa)') return '/food/plain_dosa_1781716994134.png';
@@ -24,6 +24,24 @@ function getImageUrl(name) {
   if (n === 'Onion Masala Dosa') return '/food/onion_masala_dosa_1781717399224.png';
   if (n === 'Onion Paneer Dosa') return '/food/onion_paneer_dosa_1781717428794.png';
   if (n === 'Onion Tomato Uthapam') return '/food/onion_tomato_uthapam_1781717441781.png';
+
+  // Specific Wikimedia Commons images for the rest
+  if (n === 'Onion Paneer Uthapam') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Mini_Uttappam.jpg/960px-Mini_Uttappam.jpg';
+  if (n === 'Samber Chawal' || n === 'Extra Samber (Katori)') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Pumpkin_sambar.JPG/960px-Pumpkin_sambar.JPG';
+  if (n === 'Samber Vada') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Medu_Vada.JPG/960px-Medu_Vada.JPG';
+  if (n === 'Samber Idli') return 'https://upload.wikimedia.org/wikipedia/commons/1/11/Idli_Sambar.JPG';
+  if (n === 'Aloo Paneer Tikki') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Aloo_Tikki_served_with_chutneys.jpg/960px-Aloo_Tikki_served_with_chutneys.jpg';
+  if (n === 'Chawal Chhole' || n === 'Extra Chhole' || n === 'Chhole Plate') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Chana_masala.jpg/960px-Chana_masala.jpg';
+  if (n === 'Chawal Dahi') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Curd_Rice.jpg/960px-Curd_Rice.jpg';
+  if (n === 'Kulfi Faluda') return 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Matka_kulfi.jpg';
+  if (n === 'Ras Malai') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Ras_Malai_2.JPG/960px-Ras_Malai_2.JPG';
+  if (n === 'Gulab Jamun (2 Pcs.)') return 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Gulab-jamun-wallpaper-1.jpg';
+  if (n === 'Cold Drink') return 'https://upload.wikimedia.org/wikipedia/commons/c/cf/Tumbler_of_cola_with_ice.jpg';
+  if (n === 'Lassi (Sweet)') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Salt_lassi.jpg/960px-Salt_lassi.jpg';
+  if (n === 'Milk Shake' || n === 'Strawberry Shake with Ice Cream') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Strawberry_milk_shake_%28cropped%29.jpg/960px-Strawberry_milk_shake_%28cropped%29.jpg';
+  if (n === 'Cold Coffee' || n === 'Cold Coffee with Ice Cream') return 'https://upload.wikimedia.org/wikipedia/commons/7/73/Cafe-frape-glas-holztisch-unscharf.jpg';
+  if (n === 'Badam Shake') return 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Home-made_almond_milk%2C_November_2012.jpg/500px-Home-made_almond_milk%2C_November_2012.jpg';
+  if (n === 'Mineral Water') return 'https://upload.wikimedia.org/wikipedia/commons/0/02/Stilles_Mineralwasser.jpg';
 
   // Fallback map for the rest using high quality Unsplash food photography
   const lowerName = n.toLowerCase();
