@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.review-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFF5EB 0%, #FFE4CC 50%, #FFF5EB 100%);
+  padding: 20px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.review-card {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 30px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(232, 115, 14, 0.15);
+  text-align: center;
+  animation: slideUp 0.5s ease;
+}
+
+.review-card.submitted {
+  animation: scaleIn 0.4s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.review-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #E8730E;
+  margin: 0 0 4px 0;
+}
+
+.review-subtitle {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0 0 24px 0;
+}
+
+.review-question {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 28px 0;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.emoji-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 8px;
+  border: 2px solid #f0f0f0;
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.emoji-btn:hover {
+  border-color: #E8730E;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(232, 115, 14, 0.15);
+}
+
+.emoji-btn.selected {
+  border-color: #E8730E;
+  background: #FFF5EB;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(232, 115, 14, 0.2);
+}
+
+.emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.emoji-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.emoji-btn.selected .emoji-label {
+  color: #E8730E;
+  font-weight: 600;
+}
+
+.feedback-section {
+  animation: slideUp 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.feedback-section textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #f0f0f0;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  resize: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.feedback-section textarea:focus {
+  outline: none;
+  border-color: #E8730E;
+}
+
+.submit-review-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #E8730E, #FF9A3E);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  animation: slideUp 0.3s ease;
+}
+
+.submit-review-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(232, 115, 14, 0.35);
+}
+
+.submit-review-btn:active {
+  transform: translateY(0);
+}
+
+/* Submitted state */
+.submitted-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.submitted h2 {
+  font-size: 1.5rem;
+  color: #1a1a2e;
+  margin: 0 0 8px 0;
+}
+
+.submitted p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.google-review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.google-review-btn:hover {
+  background: #3367d6;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(66, 133, 244, 0.35);
+}
+
+.google-review-btn svg {
+  fill: white;
+}

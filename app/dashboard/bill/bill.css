@@ -1,0 +1,242 @@
+/* ==========================================
+   Nagpal Sweets & Namkeen — Bill / Receipt
+   ========================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.billPage {
+  font-family: 'Outfit', sans-serif;
+  background: #f8f8f8;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.receipt {
+  background: #fff;
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem 1.75rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Header ---------- */
+.receiptHeader {
+  text-align: center;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px dashed #ddd;
+  margin-bottom: 1.25rem;
+}
+
+.receiptBrand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 0.25rem;
+}
+
+.receiptBrandAccent {
+  color: #E8730E;
+}
+
+.receiptMeta {
+  font-size: 0.78rem;
+  color: #888;
+  margin: 0.2rem 0;
+}
+
+/* ---------- Order Section ---------- */
+.receiptOrder {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #e0e0e0;
+}
+
+.receiptOrderTitle {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---------- Items Table ---------- */
+.receiptTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receiptTable th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.receiptTable th:last-child {
+  text-align: right;
+}
+
+.receiptTable td {
+  font-size: 0.85rem;
+  color: #333;
+  padding: 0.45rem 0;
+  vertical-align: top;
+}
+
+.receiptTable td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.itemSizeTag {
+  display: inline-block;
+  font-size: 0.65rem;
+  color: #E8730E;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 0.3rem;
+}
+
+.receiptSubtotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #444;
+  padding-top: 0.5rem;
+  margin-top: 0.3rem;
+  border-top: 1px dotted #ddd;
+}
+
+/* ---------- Grand Total ---------- */
+.receiptGrandTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-top: 0.5rem;
+  border-top: 2px dashed #ddd;
+  border-bottom: 2px dashed #ddd;
+}
+
+.receiptGrandTotal span:first-child {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  text-transform: uppercase;
+}
+
+.receiptGrandTotal span:last-child {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #E8730E;
+}
+
+/* ---------- Footer ---------- */
+.receiptFooter {
+  text-align: center;
+  padding-top: 1.25rem;
+  color: #aaa;
+  font-size: 0.75rem;
+}
+
+.receiptFooter p {
+  margin: 0.2rem 0;
+}
+
+/* ---------- Print Button ---------- */
+.printBtnWrap {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.printBtn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.7rem 2rem;
+  background: #E8730E;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.printBtn:hover {
+  background: #d4660c;
+  box-shadow: 0 4px 16px rgba(232, 115, 14, 0.3);
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: #E8730E;
+}
+
+/* ---------- Loading ---------- */
+.billLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  font-size: 1rem;
+  color: #888;
+}
+
+/* ---------- Print Styles ---------- */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  .billPage {
+    padding: 0;
+    min-height: auto;
+    background: #fff;
+  }
+
+  .receipt {
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  .printBtnWrap,
+  .backLink {
+    display: none !important;
+  }
+
+  .receiptGrandTotal span:last-child {
+    color: #000;
+  }
+
+  .receiptBrandAccent {
+    color: #000;
+  }
+
+  .itemSizeTag {
+    color: #666;
+  }
+}

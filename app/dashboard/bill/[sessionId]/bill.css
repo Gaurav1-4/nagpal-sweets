@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.billPage {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #f0f2f5;
+  padding: 40px 20px;
+  font-family: 'Outfit', sans-serif;
+  color: #1a1a2e;
+}
+
+.receipt {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.receiptHeader {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.receiptBrand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #1a1a2e;
+}
+
+.receiptBrandAccent {
+  color: #E8730E;
+}
+
+.receiptMeta {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.receiptOrder {
+  margin-bottom: 20px;
+  border-top: 1px dashed #ccc;
+  padding-top: 16px;
+}
+
+.receiptOrderTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.receiptTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+}
+
+.receiptTable th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  text-align: left;
+}
+
+.receiptTable td {
+  padding: 8px 0;
+  font-size: 0.95rem;
+}
+
+.itemSizeTag {
+  font-size: 0.75rem;
+  color: #666;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+.receiptSubtotal {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.receiptGrandTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 2px dashed #000;
+}
+
+.receiptFooter {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.printBtnWrap {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.printBtn {
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.printBtn:hover {
+  background: #2a2a4e;
+}
+
+.backLink {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+@media print {
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+  }
+
+  .billPage {
+    padding: 0 !important;
+    min-height: auto !important;
+    background: white !important;
+  }
+
+  .receipt {
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+
+  .printBtnWrap {
+    display: none !important;
+  }
+}
