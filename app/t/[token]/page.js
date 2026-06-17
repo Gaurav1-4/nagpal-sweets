@@ -33,10 +33,11 @@ function MenuContent({ token }) {
           return;
         }
         const data = await res.json();
-        setSessionId(data.sessionId);
+        const sid = data.session ? data.session.id : data.sessionId;
+        setSessionId(sid);
         // Persist sessionId so cart page can access it
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem(`session_${token}`, data.sessionId);
+          sessionStorage.setItem(`session_${token}`, sid);
         }
       } catch {
         setError('Could not connect to the restaurant. Please check your connection.');
