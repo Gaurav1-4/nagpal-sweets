@@ -212,8 +212,6 @@ export default function CartPage({ params }) {
   if (!token) return null;
 
   return (
-    <CartProvider>
-      <CartContent token={token} />
-    </CartProvider>
+    <CartContent token={token} />
   );
 }

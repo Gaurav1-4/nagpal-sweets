@@ -4,8 +4,8 @@ import { memo } from 'react';
 
 function MenuCard({ item, onAdd, onRemove, quantity, selectedSize, onSizeChange }) {
   const price = selectedSize === 'half' && item.has_half_option
-    ? item.price_half
-    : item.price_full;
+    ? item.half_price
+    : item.price;
 
   const isMrp = item.is_mrp;
 

@@ -59,22 +59,18 @@ function MenuContent({ token }) {
             id,
             name,
             icon,
-            sort_order,
             menu_items (
               id,
               name,
               description,
-              price_full,
-              price_half,
+              price,
+              half_price,
               has_half_option,
               is_veg,
               is_available,
-              is_mrp,
-              sort_order
+              is_mrp
             )
-          `)
-          .eq('is_active', true)
-          .order('sort_order', { ascending: true });
+          `);
 
         if (catError) throw catError;
 
@@ -83,8 +79,8 @@ function MenuContent({ token }) {
           ...cat,
           menu_items: cat.menu_items
             .filter((item) => item.is_available)
-            .sort((a, b) => a.sort_order - b.sort_order),
-        }));
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        })).sort((a, b) => a.name.localeCompare(b.name));
 
         setCategories(processed);
         if (processed.length > 0) {
@@ -276,8 +272,6 @@ export default function MenuPage({ params }) {
   const token = resolvedParams.token;
 
   return (
-    <CartProvider>
-      <MenuContent token={token} />
-    </CartProvider>
+    <MenuContent token={token} />
   );
 }
