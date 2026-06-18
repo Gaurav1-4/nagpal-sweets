@@ -1,6 +1,7 @@
 'use client';
 
 import { memo } from 'react';
+import Image from 'next/image';
 
 function getImageUrl(name) {
   const n = name.trim();
@@ -78,7 +79,7 @@ function getImageUrl(name) {
   return 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?q=80&w=300&auto=format&fit=crop';
 }
 
-function MenuCard({ item, onAdd, onRemove, quantity, selectedSize, onSizeChange }) {
+function MenuCard({ item, onAdd, onRemove, quantity, selectedSize, onSizeChange, priority = false }) {
   const price = selectedSize === 'half' && item.has_half_option
     ? item.half_price
     : item.price;
@@ -130,10 +131,16 @@ function MenuCard({ item, onAdd, onRemove, quantity, selectedSize, onSizeChange 
 
       {!isMrp && (
         <div className="card-actions">
-          <div 
-            className="item-image-placeholder" 
-            style={{ backgroundImage: `url('${imageUrl}')` }}
-          ></div>
+          <div className="item-image-placeholder" style={{ position: 'relative', overflow: 'hidden' }}>
+            <Image 
+              src={imageUrl} 
+              alt={item.name}
+              fill
+              sizes="(max-width: 768px) 120px, 150px"
+              style={{ objectFit: 'cover' }}
+              priority={priority}
+            />
+          </div>
           {quantity === 0 ? (
             <button
               className="add-btn"

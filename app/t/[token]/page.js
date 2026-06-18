@@ -198,6 +198,8 @@ function MenuContent({ token }) {
           autoPlay
           muted
           playsInline
+          preload="auto"
+          fetchPriority="high"
           onEnded={() => setCurrentVideoIndex((prev) => (prev + 1) % heroVideos.length)}
           style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 0 }}
         />
@@ -304,8 +306,9 @@ function MenuContent({ token }) {
             </div>
 
             <div className="section-items">
-              {cat.menu_items.map((item) => {
+              {cat.menu_items.map((item, itemIdx) => {
                 const size = sizeSelections[item.id] || 'full';
+                const isPriority = index === 0 && itemIdx < 4; // Priority for first 4 items of first category
                 return (
                   <MenuCard
                     key={item.id}
@@ -315,6 +318,7 @@ function MenuContent({ token }) {
                     quantity={getQuantity(item.id, size)}
                     selectedSize={size}
                     onSizeChange={handleSizeChange}
+                    priority={isPriority}
                   />
                 );
               })}
