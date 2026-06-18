@@ -1,1 +1,9 @@
-{"name": "nagpal-sweets"}
+{
+  "name": "nagpal-sweets",
+  "crons": [
+    {
+      "path": "/api/cron/daily-report",
+      "schedule": "30 16 * * *"
+    }
+  ]
+}
