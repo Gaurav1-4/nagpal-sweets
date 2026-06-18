@@ -1,84 +1,8 @@
-/* ==========================================
-   Nagpal Sweets & Namkeen — Dashboard Styles
-   Dark POS-style theme
-   ========================================== */
+/* ===== NEW PREMIUM DASHBOARD STYLES ===== */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-
-/* ---------- Base ---------- */
-.dashboard {
-  font-family: 'Outfit', sans-serif;
-  background: #0f0f23;
-  color: #e2e8f0;
+.dashboard-wrapper {
+  background-color: #f1f5f9;
   min-height: 100vh;
-  padding: 0;
-}
-
-/* ---------- Header ---------- */
-.dashHeader {
-  background: linear-gradient(135deg, #1a1a3e 0%, #0f0f23 100%);
-  border-bottom: 1px solid rgba(232, 115, 14, 0.25);
-  padding: 1.25rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  backdrop-filter: blur(12px);
-}
-
-.dashTitle {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.01em;
-}
-
-.dashTitle span {
-  color: #E8730E;
-}
-
-.dashTime {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---------- Layout ---------- */
-.dashBody {
-  padding: 1.5rem 2rem 3rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* ---------- Section Titles ---------- */
-.sectionTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #cbd5e1;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sectionTitle::before {
-  content: '';
-  width: 4px;
-  height: 1.1em;
-  background: #E8730E;
-  border-radius: 2px;
-}
-
-/* ---------- Card Base ---------- */
-.card {
-  background: #1a1a3e;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  padding: 1.5rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #0f172a;
   display: flex;
@@ -382,130 +306,85 @@
 .orderItem {
   display: flex;
   justify-content: space-between;
-  font-size: 0.78rem;
-  margin-left: 0.25rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
 }
 
-.orderItem .itemSize {
-  color: #E8730E;
-  font-size: 0.72rem;
+.itemQty {
   font-weight: 600;
-  text-transform: uppercase;
-  margin-left: 0.35rem;
+  margin-right: 0.5rem;
+  color: #334155;
 }
 
-.orderItem .itemPrice {
-  color: #cbd5e1;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+.itemName {
+  color: #1e293b;
 }
 
-/* ---------- Order Footer ---------- */
 .orderFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 0.75rem;
   margin-top: auto;
 }
 
 .orderTotal {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Badges & Buttons */
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #E8730E;
+  text-transform: uppercase;
 }
 
-/* ---------- Buttons ---------- */
 .btn {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.82rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.55rem 1.2rem;
-  border-radius: 10px;
-  border: none;
   cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   transition: all 0.2s ease;
-  white-space: nowrap;
 }
 
-.btn:active {
-  transform: scale(0.96);
+.btnSmall {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.btnPrimary { background: #2563eb; color: white; }
+.btnPrimary:hover { background: #1d4ed8; }
+.btnPrimary:disabled { background: #93c5fd; cursor: not-allowed; }
 
-.btnPrimary {
-  background: #E8730E;
-  color: #fff;
-}
+.btnSuccess { background: #22c55e; color: white; }
+.btnSuccess:hover { background: #16a34a; }
+.btnSuccess:disabled { background: #86efac; cursor: not-allowed; }
 
-.btnPrimary:hover:not(:disabled) {
-  background: #d4660c;
-  box-shadow: 0 4px 16px rgba(232, 115, 14, 0.3);
-}
+.btnWarning { background: #f59e0b; color: white; }
+.btnWarning:hover { background: #d97706; }
+.btnWarning:disabled { background: #fcd34d; cursor: not-allowed; }
 
-.btnSuccess {
-  background: #22c55e;
-  color: #fff;
-}
+.btnDanger { background: #ef4444; color: white; }
+.btnDanger:hover { background: #dc2626; }
 
-.btnSuccess:hover:not(:disabled) {
-  background: #16a34a;
-  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25);
-}
+.btnGhost { background: #f1f5f9; color: #475569; }
+.btnGhost:hover { background: #e2e8f0; color: #1e293b; }
 
-.btnWarning {
-  background: #f59e0b;
-  color: #1a1a3e;
-}
-
-.btnWarning:hover:not(:disabled) {
-  background: #d97706;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
-}
-
-.btnDanger {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.btnDanger:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.25);
-}
-
-.btnGhost {
-  background: rgba(255, 255, 255, 0.06);
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.btnGhost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-}
-
-/* ---------- Bill Section ---------- */
-.billSection {
-  margin-top: 2rem;
-}
-
-.billActions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-}
-
-/* ---------- Empty State ---------- */
+/* Empty State */
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
-  color: #64748b;
+  background: white;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
 }
 
 .emptyIcon {
@@ -514,98 +393,44 @@
   opacity: 0.5;
 }
 
-.emptyState p {
-  font-size: 0.95rem;
-}
-
-/* ---------- Loading ---------- */
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  color: #94a3b8;
-  font-size: 1rem;
-}
-
+/* Utilities */
 .spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(232, 115, 14, 0.2);
-  border-top-color: #E8730E;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #2563eb;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin-right: 0.75rem;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ---------- Toast / Notification ---------- */
+/* Toast */
 .toast {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  background: #1a1a3e;
-  border: 1px solid rgba(232, 115, 14, 0.3);
-  border-radius: 12px;
+  background: #1e293b;
+  color: white;
   padding: 1rem 1.5rem;
-  color: #fff;
-  font-size: 0.88rem;
+  border-radius: 8px;
   font-weight: 500;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: toastSlide 0.35s ease-out;
-  z-index: 100;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
 }
 
-@keyframes toastSlide {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
-  .dashHeader {
-    padding: 1rem;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-start;
-  }
-
-  .dashBody {
-    padding: 1rem;
-  }
-
-  .tableCardInner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .ordersGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .billActions {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-@media (min-width: 1024px) {
-  .ordersGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  .dashNav { padding: 1rem; }
+  .kpiBar { padding: 1rem 1rem 0; }
+  .dashContent { padding: 1rem; }
+  .dashTabs { overflow-x: auto; white-space: nowrap; padding-bottom: 0.5rem; }
+  .kpiBar { grid-template-columns: 1fr 1fr; }
+  .qrShortcut { grid-column: span 2; }
 }
