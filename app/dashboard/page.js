@@ -21,7 +21,7 @@ const ORDER_STATUS_COLORS = {
 };
 
 // Tables designated for online orders
-const ONLINE_TABLE_NAMES = ['Takeaway', 'Delivery', 'Online'];
+const ONLINE_TABLE_NAMES = ['Takeaway', 'Online'];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -402,7 +402,7 @@ export default function DashboardPage() {
           {/* ONLINE ORDERS TAB */}
           {activeTab === 'online' && (
             <div className="ordersSection">
-              <h2 className="sectionHeader">🛍️ Online (Takeaway/Delivery)</h2>
+              <h2 className="sectionHeader">🛍️ Online (Takeaway)</h2>
               {renderOrderList(onlineOrders)}
             </div>
           )}
