@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function GET(request) {
+  const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+
   // Validate Vercel CRON authorization
   const authHeader = request.headers.get('authorization');
   if (
