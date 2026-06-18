@@ -20,16 +20,24 @@ const ORDER_STATUS_COLORS = {
   cancelled: '#6b7280',
 };
 
+// Tables designated for online orders
+const ONLINE_TABLE_NAMES = ['Takeaway', 'Delivery', 'Online'];
+
 export default function DashboardPage() {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [table, setTable] = useState(null);
-  const [session, setSession] = useState(null);
+  
+  const [tables, setTables] = useState([]);
+  const [sessions, setSessions] = useState({}); // tableId -> active session
   const [orders, setOrders] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+
+  // Active Tab state
+  const [activeTab, setActiveTab] = useState('overview'); // overview, dinein, online
 
   // ---------- Clock ----------
   useEffect(() => {
@@ -44,93 +52,65 @@ export default function DashboardPage() {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   }, []);
 
-  // ---------- Fetch table & session ----------
-  const fetchTableSession = useCallback(async () => {
-    // Fetch the first active table
-    const { data: tables } = await supabase
-      .from('tables')
-      .select('*')
-      .eq('is_active', true)
-      .limit(1);
+  // ---------- Fetch Data ----------
+  const fetchData = useCallback(async () => {
+    try {
+      // 1. Fetch tables
+      const { data: tablesData } = await supabase
+        .from('tables')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+        
+      if (tablesData) setTables(tablesData);
 
-    if (!tables || tables.length === 0) {
+      // 2. Fetch active sessions
+      const { data: sessionsData } = await supabase
+        .from('table_sessions')
+        .select('*')
+        .neq('status', 'closed');
+        
+      if (sessionsData) {
+        const sessionMap = {};
+        sessionsData.forEach(s => {
+          sessionMap[s.table_id] = s;
+        });
+        setSessions(sessionMap);
+      }
+
+      // 3. Fetch active orders
+      const res = await fetch('/api/orders');
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
       setLoading(false);
-      return;
-    }
-
-    const tbl = tables[0];
-    setTable(tbl);
-
-    // Fetch active session for this table
-    const { data: sessions } = await supabase
-      .from('sessions')
-      .select('*')
-      .eq('table_id', tbl.id)
-      .neq('status', 'closed')
-      .order('started_at', { ascending: false })
-      .limit(1);
-
-    if (sessions && sessions.length > 0) {
-      setSession(sessions[0]);
-    } else {
-      setSession(null);
-    }
-
-    setLoading(false);
-  }, []);
-
-  // ---------- Fetch orders ----------
-  const fetchOrders = useCallback(async () => {
-    const res = await fetch('/api/orders');
-    if (res.ok) {
-      const data = await res.json();
-      setOrders(data);
     }
   }, []);
 
-  // ---------- Initial load ----------
+  // ---------- Initial load & Polling ----------
   useEffect(() => {
-    fetchTableSession();
-    fetchOrders();
-  }, [fetchTableSession, fetchOrders]);
-
-  // ---------- Polling fallback (every 5s) ----------
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchOrders();
-      fetchTableSession();
-    }, 5000);
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
-  }, [fetchOrders, fetchTableSession]);
+  }, [fetchData]);
 
   // ---------- Supabase Realtime ----------
   useEffect(() => {
     const channel = supabase
       .channel('dashboard-orders')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders' },
-        () => {
-          fetchOrders();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'table_sessions' },
-        () => {
-          fetchTableSession();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'table_sessions' }, fetchData)
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [fetchOrders, fetchTableSession]);
+    return () => supabase.removeChannel(channel);
+  }, [fetchData]);
 
   // ---------- Actions ----------
   const updateOrderStatus = async (orderId, status) => {
-    setActionLoading(orderId);
+    setActionLoading(`order-${orderId}`);
     try {
       const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
@@ -139,8 +119,7 @@ export default function DashboardPage() {
       });
       if (res.ok) {
         showToast(`Order updated to ${ORDER_STATUS_LABELS[status]}`);
-        await fetchOrders();
-        await fetchTableSession();
+        await fetchData();
       }
     } catch (e) {
       console.error(e);
@@ -148,27 +127,17 @@ export default function DashboardPage() {
     setActionLoading(null);
   };
 
-  const updateSessionStatus = async (status) => {
-    if (!session) return;
-    setActionLoading('session-' + status);
+  const updateSessionStatus = async (sessionId, status) => {
+    setActionLoading(`session-${sessionId}`);
     try {
-      const res = await fetch(`/api/sessions/${session.id}`, {
+      const res = await fetch(`/api/sessions/${sessionId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
       if (res.ok) {
-        const updated = await res.json();
-        setSession(status === 'closed' ? null : updated);
-        showToast(
-          status === 'closed'
-            ? 'Session closed — table is available'
-            : `Session → ${SESSION_STATUS_LABELS[status]}`
-        );
-        if (status === 'closed') {
-          setOrders([]);
-          await fetchTableSession();
-        }
+        showToast(status === 'closed' ? 'Session closed & paid' : `Session updated`);
+        await fetchData();
       }
     } catch (e) {
       console.error(e);
@@ -176,15 +145,13 @@ export default function DashboardPage() {
     setActionLoading(null);
   };
 
-  const createNewSession = async () => {
-    if (!table) return;
-    setActionLoading('new-session');
+  const createNewSession = async (token) => {
+    setActionLoading(`new-session-${token}`);
     try {
-      const res = await fetch(`/api/tables/${table.token}`);
+      const res = await fetch(`/api/tables/${token}`);
       if (res.ok) {
-        const data = await res.json();
-        setSession(data.session);
         showToast('New session started');
+        await fetchData();
       }
     } catch (e) {
       console.error(e);
@@ -192,264 +159,255 @@ export default function DashboardPage() {
     setActionLoading(null);
   };
 
-  // ---------- Helpers ----------
+  // ---------- Computed & Helpers ----------
   const formatTime = (date) =>
-    new Date(date).toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    new Date(date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-  const formatDate = (date) =>
-    new Date(date).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-
-  const getSessionDuration = () => {
-    if (!session) return '';
-    const start = new Date(session.started_at);
+  const getElapsedTime = (dateString) => {
+    if (!dateString) return '';
+    const start = new Date(dateString);
     const diff = Math.floor((currentTime - start) / 1000 / 60);
-    if (diff < 1) return 'Just started';
-    if (diff < 60) return `${diff} min`;
-    return `${Math.floor(diff / 60)}h ${diff % 60}m`;
+    if (diff < 1) return 'Just now';
+    if (diff < 60) return `${diff}m ago`;
+    return `${Math.floor(diff / 60)}h ${diff % 60}m ago`;
   };
+
+  const dineInTables = tables.filter(t => !ONLINE_TABLE_NAMES.includes(t.name));
+  const onlineTables = tables.filter(t => ONLINE_TABLE_NAMES.includes(t.name));
+
+  const dineInOrders = orders.filter(o => o.session && !ONLINE_TABLE_NAMES.includes(o.session.table?.name));
+  const onlineOrders = orders.filter(o => o.session && ONLINE_TABLE_NAMES.includes(o.session.table?.name));
+
+  // KPIs
+  const totalOrdersToday = orders.length; // Approximated by active orders for now
+  const totalRevenueToday = orders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+  const activeDineInSessions = dineInTables.filter(t => sessions[t.id]).length;
 
   // ---------- Loading State ----------
   if (loading) {
     return (
-      <div className="dashboard">
-        <div className="loading">
-          <div className="spinner" />
-          Loading dashboard…
-        </div>
+      <div className="dashboard-wrapper loading-wrapper">
+        <div className="spinner"></div>
       </div>
     );
   }
 
-  return (
-    <div className="dashboard">
-      {/* ===== Header ===== */}
-      <header className="dashHeader">
-        <h1 className="dashTitle">
-          <span>{RESTAURANT_NAME}</span> — Dashboard
-        </h1>
-        <div className="dashTime">
-          {formatDate(currentTime)} &nbsp;·&nbsp; {formatTime(currentTime)}
+  // ---------- Render Order List ----------
+  const renderOrderList = (orderList) => {
+    if (orderList.length === 0) {
+      return (
+        <div className="emptyState">
+          <div className="emptyIcon">📋</div>
+          <p>No active orders</p>
         </div>
-      </header>
+      );
+    }
 
-      <div className="dashBody">
-        {/* ===== Table Status Card ===== */}
-        {table && (
-          <div className="card tableCard">
-            <div className="tableCardInner">
-              <div className="tableInfo">
-                <div className="tableIcon">🪑</div>
+    return (
+      <div className="ordersGrid">
+        {orderList.map((order) => {
+          const table = order.session?.table;
+          return (
+            <div key={order.id} className="orderCard">
+              <div className="orderCardHeader">
                 <div>
-                  <div className="tableName">{table.name}</div>
-                  <div className="tableMeta">
-                    {session
-                      ? `Started ${formatTime(session.started_at)} · ${getSessionDuration()}`
-                      : 'No active session'}
-                  </div>
+                  <span className="orderTableName">{table?.name || 'Unknown Table'}</span>
+                  <span className="orderId">#{order.id.slice(0, 5)}</span>
                 </div>
-                {session && (
-                  <span
-                    className="badge"
-                    style={{
-                      background: `${SESSION_STATUS_COLORS[session.status]}22`,
-                      color: SESSION_STATUS_COLORS[session.status],
-                    }}
-                  >
-                    {SESSION_STATUS_LABELS[session.status]}
-                  </span>
-                )}
+                <span
+                  className="badge"
+                  style={{
+                    background: `${ORDER_STATUS_COLORS[order.status]}22`,
+                    color: ORDER_STATUS_COLORS[order.status],
+                  }}
+                >
+                  {ORDER_STATUS_LABELS[order.status]}
+                </span>
               </div>
-              <div className="tableActions">
-                {(!session || session.status === 'closed') && (
+
+              <p className="orderCustomer">
+                <strong>{order.customer_name || 'Customer'}</strong>
+                {order.customer_phone && <span>📞 {order.customer_phone}</span>}
+                <span className="timeElapsed">{getElapsedTime(order.created_at)}</span>
+              </p>
+
+              <ul className="orderItems">
+                {order.order_items?.map((item) => (
+                  <li key={item.id} className="orderItem">
+                    <span>
+                      <span className="itemQty">{item.quantity}×</span>
+                      <span className="itemName">{item.menu_item?.name || 'Item'}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="orderFooter">
+                <span className="orderTotal">₹{order.total_amount}</span>
+
+                {order.status === 'placed' && (
+                  <button
+                    className="btn btnWarning"
+                    onClick={() => updateOrderStatus(order.id, 'cooking')}
+                    disabled={actionLoading === `order-${order.id}`}
+                  >
+                    🔥 Start Cooking
+                  </button>
+                )}
+                {order.status === 'cooking' && (
+                  <button
+                    className="btn btnSuccess"
+                    onClick={() => updateOrderStatus(order.id, 'ready')}
+                    disabled={actionLoading === `order-${order.id}`}
+                  >
+                    ✓ Mark Ready
+                  </button>
+                )}
+                {order.status === 'ready' && (
                   <button
                     className="btn btnPrimary"
-                    onClick={createNewSession}
-                    disabled={actionLoading === 'new-session'}
+                    onClick={() => updateOrderStatus(order.id, 'served')}
+                    disabled={actionLoading === `order-${order.id}`}
                   >
-                    {actionLoading === 'new-session'
-                      ? 'Starting…'
-                      : '＋ New Session'}
+                    🍽 Mark Served
                   </button>
                 )}
-                {session && session.status === 'awaiting_payment' && (
-                  <button
-                    className="btn btnSuccess"
-                    onClick={() => updateSessionStatus('closed')}
-                    disabled={actionLoading === 'session-closed'}
-                  >
-                    {actionLoading === 'session-closed'
-                      ? 'Closing…'
-                      : '✓ Mark Paid & Close'}
-                  </button>
+                {order.status === 'served' && (
+                  <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Awaiting bill</span>
                 )}
               </div>
             </div>
-          </div>
-        )}
+          );
+        })}
+      </div>
+    );
+  };
 
-        {/* ===== Orders Section ===== */}
-        <h2 className="sectionTitle">Live Orders</h2>
+  return (
+    <div className="dashboard-wrapper">
+      {/* ===== Top Navbar ===== */}
+      <nav className="dashNav">
+        <div className="navBrand">
+          <h1>{RESTAURANT_NAME}</h1>
+          <span className="versionBadge">Pro</span>
+        </div>
+        <div className="navTime">{formatTime(currentTime)}</div>
+      </nav>
 
-        {orders.length === 0 ? (
-          <div className="emptyState">
-            <div className="emptyIcon">📋</div>
-            <p>No active orders right now</p>
-            <p style={{ fontSize: '0.82rem', color: '#4a5568' }}>
-              Orders will appear here in real-time when customers place them
-            </p>
-          </div>
-        ) : (
-          <div className="ordersGrid">
-            {orders.map((order) => (
-              <div key={order.id} className="orderCard">
-                {/* Header */}
-                <div className="orderCardHeader">
-                  <span className="orderId">#{order.id.slice(0, 8)}</span>
-                  <span
-                    className="badge"
-                    style={{
-                      background: `${ORDER_STATUS_COLORS[order.status]}22`,
-                      color: ORDER_STATUS_COLORS[order.status],
-                    }}
-                  >
-                    {ORDER_STATUS_LABELS[order.status]}
-                  </span>
-                </div>
+      {/* ===== KPI Header ===== */}
+      <div className="kpiBar">
+        <div className="kpiCard">
+          <div className="kpiValue">{activeDineInSessions} / {dineInTables.length}</div>
+          <div className="kpiLabel">Active Tables</div>
+        </div>
+        <div className="kpiCard">
+          <div className="kpiValue">{totalOrdersToday}</div>
+          <div className="kpiLabel">Active Orders</div>
+        </div>
+        <div className="kpiCard">
+          <div className="kpiValue">₹{totalRevenueToday}</div>
+          <div className="kpiLabel">Current Revenue</div>
+        </div>
+        <div className="kpiCard qrShortcut">
+          <button onClick={() => router.push('/dashboard/qr')} className="btn btnGhost">
+            🖨️ QR Codes
+          </button>
+        </div>
+      </div>
 
-                {/* Customer */}
-                <p className="orderCustomer">
-                  <strong>{order.customer_name || 'Walk-in'}</strong>
-                  {order.customer_phone && (
-                    <span>📞 {order.customer_phone}</span>
-                  )}
-                </p>
+      {/* ===== Main Content Area ===== */}
+      <div className="dashContent">
+        {/* Sidebar / Tabs */}
+        <div className="dashTabs">
+          <button 
+            className={`tabBtn ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            📊 Tables Overview
+          </button>
+          <button 
+            className={`tabBtn ${activeTab === 'dinein' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dinein')}
+          >
+            🍽️ Dine-in Orders {dineInOrders.length > 0 && <span className="tabBadge">{dineInOrders.length}</span>}
+          </button>
+          <button 
+            className={`tabBtn ${activeTab === 'online' ? 'active' : ''}`}
+            onClick={() => setActiveTab('online')}
+          >
+            🛍️ Online Orders {onlineOrders.length > 0 && <span className="tabBadge onlineBadge">{onlineOrders.length}</span>}
+          </button>
+        </div>
 
-                {/* Items */}
-                <ul className="orderItems">
-                  {order.order_items?.map((item) => (
-                    <li key={item.id} className="orderItem">
-                      <span>
-                        <span className="itemName">
-                          {item.menu_item?.name || 'Item'}
+        {/* Tab Content */}
+        <div className="tabContent">
+          
+          {/* OVERVIEW TAB */}
+          {activeTab === 'overview' && (
+            <div className="tablesGrid">
+              {[...dineInTables, ...onlineTables].map(table => {
+                const session = sessions[table.id];
+                const isOnlineTable = ONLINE_TABLE_NAMES.includes(table.name);
+                
+                return (
+                  <div key={table.id} className={`tableCard ${session ? 'activeSession' : ''} ${isOnlineTable ? 'onlineTable' : ''}`}>
+                    <div className="tableHeader">
+                      <h3>{table.name}</h3>
+                      {session && (
+                        <span className="badge" style={{ background: `${SESSION_STATUS_COLORS[session.status]}22`, color: SESSION_STATUS_COLORS[session.status] }}>
+                          {SESSION_STATUS_LABELS[session.status]}
                         </span>
-                        <span className="itemQty">×{item.quantity}</span>
-                        {item.size === 'half' && (
-                          <span className="itemSize">Half</span>
-                        )}
-                      </span>
-                      <span className="itemPrice">
-                        ₹{item.price_at_order * item.quantity}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Footer */}
-                <div className="orderFooter">
-                  <span className="orderTotal">₹{order.total_amount}</span>
-
-                  {order.status === 'placed' && (
-                    <button
-                      className="btn btnWarning"
-                      onClick={() => updateOrderStatus(order.id, 'cooking')}
-                      disabled={actionLoading === order.id}
-                    >
-                      {actionLoading === order.id
-                        ? 'Updating…'
-                        : '🔥 Start Cooking'}
-                    </button>
-                  )}
-                  {order.status === 'cooking' && (
-                    <button
-                      className="btn btnSuccess"
-                      onClick={() => updateOrderStatus(order.id, 'ready')}
-                      disabled={actionLoading === order.id}
-                    >
-                      {actionLoading === order.id
-                        ? 'Updating…'
-                        : '✓ Mark Ready'}
-                    </button>
-                  )}
-                  {order.status === 'ready' && (
-                    <button
-                      className="btn btnPrimary"
-                      onClick={() => updateOrderStatus(order.id, 'served')}
-                      disabled={actionLoading === order.id}
-                    >
-                      {actionLoading === order.id
-                        ? 'Updating…'
-                        : '🍽 Mark Served'}
-                    </button>
-                  )}
-                  {order.status === 'served' && (
-                    <span
-                      style={{
-                        fontSize: '0.78rem',
-                        color: '#64748b',
-                      }}
-                    >
-                      Awaiting bill
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ===== Bill & Close Section ===== */}
-        {session && session.status !== 'closed' && orders.length > 0 && (
-          <div className="billSection">
-            <h2 className="sectionTitle">Billing</h2>
-            <div className="card">
-              <div className="billActions">
-                <button
-                  className="btn btnGhost"
-                  onClick={() =>
-                    router.push(`/dashboard/bill/${session.id}`)
-                  }
-                >
-                  🧾 Generate Bill
-                </button>
-
-                {session.status !== 'awaiting_payment' && (
-                  <button
-                    className="btn btnDanger"
-                    onClick={() =>
-                      updateSessionStatus('awaiting_payment')
-                    }
-                    disabled={
-                      actionLoading === 'session-awaiting_payment'
-                    }
-                  >
-                    {actionLoading === 'session-awaiting_payment'
-                      ? 'Updating…'
-                      : '💰 Close & Collect Payment'}
-                  </button>
-                )}
-
-                {session.status === 'awaiting_payment' && (
-                  <button
-                    className="btn btnSuccess"
-                    onClick={() => updateSessionStatus('closed')}
-                    disabled={actionLoading === 'session-closed'}
-                  >
-                    {actionLoading === 'session-closed'
-                      ? 'Closing…'
-                      : '✓ Mark Paid'}
-                  </button>
-                )}
-              </div>
+                      )}
+                    </div>
+                    <div className="tableBody">
+                      {session ? (
+                        <>
+                          <div className="sessionTime">Session active for {getElapsedTime(session.started_at)}</div>
+                          <div className="tableActions">
+                            <button className="btn btnGhost btnSmall" onClick={() => router.push(`/dashboard/bill/${session.id}`)}>🧾 Bill</button>
+                            {session.status === 'awaiting_payment' ? (
+                              <button className="btn btnSuccess btnSmall" onClick={() => updateSessionStatus(session.id, 'closed')}>✓ Paid</button>
+                            ) : (
+                              <button className="btn btnDanger btnSmall" onClick={() => updateSessionStatus(session.id, 'awaiting_payment')}>💳 Checkout</button>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="emptyTableActions">
+                          <p className="noSession">Available</p>
+                          <button 
+                            className="btn btnPrimary btnSmall" 
+                            onClick={() => createNewSession(table.qr_token)}
+                            disabled={actionLoading === `new-session-${table.qr_token}`}
+                          >
+                            ＋ Start
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* DINE-IN ORDERS TAB */}
+          {activeTab === 'dinein' && (
+            <div className="ordersSection">
+              <h2 className="sectionHeader">🍽️ Dine-in Live Orders</h2>
+              {renderOrderList(dineInOrders)}
+            </div>
+          )}
+
+          {/* ONLINE ORDERS TAB */}
+          {activeTab === 'online' && (
+            <div className="ordersSection">
+              <h2 className="sectionHeader">🛍️ Online (Takeaway/Delivery)</h2>
+              {renderOrderList(onlineOrders)}
+            </div>
+          )}
+
+        </div>
       </div>
 
       {/* ===== Toast ===== */}
@@ -457,3 +415,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
